@@ -3,9 +3,11 @@ import { ref, provide, shallowRef } from 'vue';
 import MainDisplay from './components/MainDisplay.vue';
 import AppWindow from './components/AppWindow.vue';
 import ProjectsApp from './components/ProjectsApp.vue';
+import SkillsApp from './components/SkillsApp.vue';
 
 const appComponents = {
-  projects: shallowRef(ProjectsApp)
+  projects: shallowRef(ProjectsApp),
+  skills: shallowRef(SkillsApp)
 };
 
 const openWindows = ref([]);
@@ -17,12 +19,15 @@ const openApp = (appName) => {
     bringWindowToFront(existingWindow.id);
     return;
   }
-  
+  const appTitles = {
+    projects: 'Projects',
+    skills: 'Skills & Proficiencies'
+  };
   const newWindow = {
     id: Date.now(),
     appName: appName,
     component: appComponents[appName],
-    title: 'Projects',
+    title: appTitles[appName] || 'App',
     zIndex: nextZIndex.value++,
     position: { x: window.innerWidth / 2 - 400, y: window.innerHeight / 2 - 250 },
     isClosing: false

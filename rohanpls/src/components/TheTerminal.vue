@@ -114,13 +114,17 @@ const closeTab = (id) => {
 };
 
 const commands = {
-  help: () => ["'whoami'", "'projects'", "'contact'", "'date'", "'clear'"],
+  help: () => ["'whoami'", "'projects'", "'skills'", "'contact'", "'date'", "'clear'"],
   whoami: () => ["Rohan, a passionate developer."],
-   projects: () => {
+  projects: () => {
     openApp('projects');
     return "Launching Projects...";
   },
-  contact: () => ["Email: your.email@example.com", "LinkedIn: linkedin.com/in/yourprofile"],
+  skills: () => {
+    openApp('skills');
+    return "Loading Skill Visualizer...";
+  },
+  contact: () => ["Email: dev.rohanpls@gmail.com", "LinkedIn: linkedin.com/in/rohanpls"],
   date: () => new Date().toLocaleString(),
   clear: () => {
     if(currentTab.value) currentTab.value.history = [];
