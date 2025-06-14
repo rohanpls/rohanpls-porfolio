@@ -1,12 +1,6 @@
 <template>
   <div class="terminal-window" @click="focusInput">
     <div class="title-bar">
-      <div class="buttons">
-        <div class="btn close"></div>
-        <div class="btn minimize"></div>
-        <div class="btn maximize"></div>
-      </div>
-      
       <div class="tabs-container">
         <div 
           v-for="tab in tabs" 
@@ -18,7 +12,14 @@
           <span>zsh</span>
           <div class="close-tab-btn" @click.stop="closeTab(tab.id)">×</div>
         </div>
-        <div class="new-tab-btn" @click="addTab">+</div>
+        <div class="new-tab-btn" @click="addTab" 
+          v-if="tabs.length < maxTabs">+</div>
+      </div>
+      
+      <div class="buttons">
+        <div class="btn close"></div>
+        <div class="btn minimize"></div>
+        <div class="btn maximize"></div>
       </div>
     </div>
 
@@ -45,13 +46,38 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
 
 // --- State Refactor for Tabs ---
 const tabs = ref([]);
 const prompt = 'rohanpls@portfolio:~$';
 const inputField = ref(null);
 const terminalBody = ref(null);
+
+// --- NEW: Responsive State ---
+const isMobile = ref(false);
+
+// This function checks the window size and updates our isMobile ref
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+
+// This computed property will return 2 or 3 based on the screen size
+const maxTabs = computed(() => {
+  return isMobile.value ? 2 : 3;
+});
+
+// Add and remove event listener to check size on window resize
+onMounted(() => {
+  checkScreenSize(); // Check on initial load
+  window.addEventListener('resize', checkScreenSize);
+  addTab(); // Initialize with one tab
+});
+
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize);
+});
+
 
 // A computed property to easily get the currently active tab
 const currentTab = computed(() => tabs.value.find(tab => tab.isActive));
@@ -64,7 +90,11 @@ const createNewTab = () => ({
   isActive: false
 });
 
+// UPDATED to use the dynamic maxTabs limit
 const addTab = () => {
+  if (tabs.value.length >= maxTabs.value) { // Use computed property
+    return;
+  }
   tabs.value.forEach(t => t.isActive = false);
   const newTab = createNewTab();
   newTab.isActive = true;
@@ -83,21 +113,14 @@ const closeTab = (id) => {
   tabs.value.splice(index, 1);
 
   if (wasActive && tabs.value.length > 0) {
-    // Activate the previous tab, or the first one if the closed tab was the first
     const newActiveIndex = Math.max(0, index - 1);
     tabs.value[newActiveIndex].isActive = true;
   } else if (tabs.value.length === 0) {
-    // If all tabs are closed, open a new default one
     addTab();
   }
 };
 
-// Initialize with one tab on mount
-onMounted(() => {
-  addTab();
-});
-
-// --- Command Logic (now operates on the current tab) ---
+// --- Command Logic (no changes here) ---
 const commands = {
   help: () => ["'whoami'", "'projects'", "'contact'", "'date'", "'clear'"],
   whoami: () => ["Rohan, a passionate developer."],
@@ -127,10 +150,10 @@ const handleCommand = () => {
   tab.input = '';
 };
 
-// --- Helper Functions ---
+
+// --- Helper Functions (no changes here) ---
 const focusInput = () => inputField.value?.focus();
 
-// Watch for changes in history of the current tab to scroll down
 watch(() => currentTab.value?.history, async () => {
   await nextTick();
   if (terminalBody.value) terminalBody.value.scrollTop = terminalBody.value.scrollHeight;
@@ -143,7 +166,7 @@ watch(() => currentTab.value?.history, async () => {
   width: 700px;
   max-width: 90vw;
   height: 400px;
-  background-color: rgba(40, 45, 60, 0.65);
+  background-color: rgba(15, 15, 15, 0.5);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 12px;
@@ -155,23 +178,27 @@ watch(() => currentTab.value?.history, async () => {
   font-family: 'Fira Code', monospace;
 }
 
+ 
+ /* ... inside the <style scoped> block ... */
+
 /* --- Title Bar and Tabs Styling --- */
 .title-bar {
-  background-color: #2e2e3a; /* Slightly different color for the whole bar */
-  padding: 0 8px; /* Remove vertical padding, manage height with content */
+  background-color: rgba(46, 46, 46, 0.5)d;
+  padding: 0 12px; /* Add some horizontal padding */
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   display: flex;
-  align-items: flex-end; /* Align items to the bottom of the bar */
+  align-items: center; /* Vertically center content */
+  justify-content: space-between; /* This pushes tabs left and buttons right */
   position: relative;
-  height: 44px; /* Set a fixed height for the bar */
+  height: 56px; /* Increased height for a more spacious feel */
 }
 
 .buttons {
   display: flex;
   gap: 8px;
-  margin-right: 16px;
-  align-self: center; /* Center the buttons vertically */
+  margin-right: 8px;
+  /* No margin needed anymore */
 }
 .btn { width: 12px; height: 12px; border-radius: 50%; }
 .close { background-color: #ff5f56; }
@@ -181,40 +208,41 @@ watch(() => currentTab.value?.history, async () => {
 .tabs-container {
   display: flex;
   flex-grow: 1;
-  align-items: flex-end;
+  align-items: flex-end; /* Align tabs to the bottom of the bar */
+  height: 100%; /* Make container full height of title bar */
 }
 
 .tab-item {
-  background-color: #4a4a5a;
+  background-color:rgba(46, 46, 46, 0.5);
   color: #ccc;
-  padding: 8px 12px;
-  border-top-left-radius: 6px;
-  border-top-right-radius: 6px;
+  padding: 10px 18px; /* Added more padding */
   cursor: pointer;
-  position: relative;
-  bottom: -1px; /* To make it overlap the border */
+  position: relative; 
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 64px;
   font-size: 0.8rem;
   border: 1px solid transparent;
   border-bottom: none;
+  /* The large border-radius you requested */
+  border-top-left-radius: 0.6rem;
+  border-top-right-radius: 0.6rem;
 }
 
 .tab-item.active {
-  background-color: rgba(40, 45, 60, 0.65); /* Match terminal body background */
+  background-color:rgba(15, 15, 15, 0.5);
   color: white;
   border-color: rgba(255, 255, 255, 0.1);
 }
 
 .close-tab-btn {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 12px;
+  font-size: 20px;
   line-height: 1;
 }
 .close-tab-btn:hover {
@@ -222,24 +250,26 @@ watch(() => currentTab.value?.history, async () => {
 }
 
 .new-tab-btn {
-  width: 28px;
-  height: 28px;
+  width: 38px;  /* Increased size to better match tab height */
+  height: 38px; /* Increased size to better match tab height */
   border-radius: 6px;
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color:  rgba(46, 46, 46, 0.5);
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.2rem;
+  font-size: 1.5rem;  
+
   cursor: pointer;
-  margin-left: 8px;
-  margin-bottom: 2px;
-  align-self: center;
+  margin-left: 8px; 
 }
 .new-tab-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
+/* ... The rest of the styles are the same ... */
+  
+ 
 /* --- Body and Input Styling (mostly the same) --- */
 .terminal-body {
   flex-grow: 1;
@@ -255,4 +285,39 @@ watch(() => currentTab.value?.history, async () => {
 .input-line { display: flex; }
 input { flex-grow: 1; background: none; border: none; color: #f0f0f0; font-family: 'Fira Code', monospace; font-size: 0.9rem; }
 input:focus { outline: none; }
+@media (max-width: 768px) {
+  .terminal-window {
+    /* Make terminal take up more of the screen on mobile */
+    width: 95vw;
+    height: 350px;
+    margin-top: 1rem;
+  }
+
+  .title-bar {
+    height: 48px; /* Slightly smaller title bar */
+    padding: 0 8px;
+  }
+
+  .tab-item {
+    padding: 8px 10px; /* Smaller padding on tabs */
+    font-size: 0.75rem;
+    gap: 60px; /* Less gap between text and close button */
+  }
+
+  .close-tab-btn {
+    width: 14px;
+    height: 14px;
+    font-size: 20px;
+  }
+
+  .new-tab-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+  }
+
+  .prompt, input, .line {
+    font-size: 0.85rem; /* Slightly smaller text in the terminal body */
+  }
+}
 </style>
