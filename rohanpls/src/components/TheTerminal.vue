@@ -130,7 +130,11 @@ watch(history, async () => {
 
 .title-bar {
   background-color: #3a3d4a;
-  padding: 8px;
+  
+  /* --- THIS IS THE CHANGE --- */
+  /* We're setting top/bottom padding to 12px and left/right to 8px */
+  padding: 12px 8px;
+  
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   display: flex;

@@ -78,9 +78,8 @@ onUnmounted(() => {
 h1 {
   font-family: 'Montserrat', sans-serif;
   font-size: 5rem;
-  font-weight: 700;
-  color: white;
-  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  font-weight: 800;
+  color: white; 
 }
 
 @media (max-width: 768px) {
