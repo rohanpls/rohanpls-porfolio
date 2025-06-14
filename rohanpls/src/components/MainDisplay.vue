@@ -10,12 +10,10 @@
 </template>
 
 <script setup>
-// This is where the Terminal import belongs!
 import Terminal from './TheTerminal.vue';
 
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 
-// --- Mouse Parallax Logic ---
 const container = ref(null);
 const mouseX = ref(0);
 const mouseY = ref(0);

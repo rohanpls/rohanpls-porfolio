@@ -46,32 +46,28 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, nextTick, onMounted, onUnmounted, inject } from 'vue';
+const openApp = inject('openApp');
 
-// --- State Refactor for Tabs ---
 const tabs = ref([]);
 const prompt = 'rohanpls@portfolio:~$';
 const inputField = ref(null);
 const terminalBody = ref(null);
 
-// --- NEW: Responsive State ---
 const isMobile = ref(false);
 
-// This function checks the window size and updates our isMobile ref
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 768;
 };
 
-// This computed property will return 2 or 3 based on the screen size
 const maxTabs = computed(() => {
   return isMobile.value ? 2 : 3;
 });
 
-// Add and remove event listener to check size on window resize
 onMounted(() => {
-  checkScreenSize(); // Check on initial load
+  checkScreenSize();
   window.addEventListener('resize', checkScreenSize);
-  addTab(); // Initialize with one tab
+  addTab();
 });
 
 onUnmounted(() => {
@@ -79,10 +75,8 @@ onUnmounted(() => {
 });
 
 
-// A computed property to easily get the currently active tab
 const currentTab = computed(() => tabs.value.find(tab => tab.isActive));
 
-// --- Core Tab Management Functions ---
 const createNewTab = () => ({
   id: Date.now(),
   history: [{ type: 'output', text: "Welcome! Type 'help' to see commands." }],
@@ -90,9 +84,8 @@ const createNewTab = () => ({
   isActive: false
 });
 
-// UPDATED to use the dynamic maxTabs limit
 const addTab = () => {
-  if (tabs.value.length >= maxTabs.value) { // Use computed property
+  if (tabs.value.length >= maxTabs.value) {
     return;
   }
   tabs.value.forEach(t => t.isActive = false);
@@ -120,11 +113,13 @@ const closeTab = (id) => {
   }
 };
 
-// --- Command Logic (no changes here) ---
 const commands = {
   help: () => ["'whoami'", "'projects'", "'contact'", "'date'", "'clear'"],
   whoami: () => ["Rohan, a passionate developer."],
-  projects: () => ["Project 1: This portfolio!", "Project 2: Secret AI app."],
+   projects: () => {
+    openApp('projects');
+    return "Launching Projects...";
+  },
   contact: () => ["Email: your.email@example.com", "LinkedIn: linkedin.com/in/yourprofile"],
   date: () => new Date().toLocaleString(),
   clear: () => {
@@ -150,8 +145,6 @@ const handleCommand = () => {
   tab.input = '';
 };
 
-
-// --- Helper Functions (no changes here) ---
 const focusInput = () => inputField.value?.focus();
 
 watch(() => currentTab.value?.history, async () => {
@@ -161,7 +154,6 @@ watch(() => currentTab.value?.history, async () => {
 </script>
 
 <style scoped>
-/* Main window styling remains similar */
 .terminal-window {
   width: 700px;
   max-width: 90vw;
@@ -178,10 +170,7 @@ watch(() => currentTab.value?.history, async () => {
   font-family: 'Fira Code', monospace;
 }
 
- 
- /* ... inside the <style scoped> block ... */
 
-/* --- Title Bar and Tabs Styling --- */
 .title-bar {
   background-color: rgba(46, 46, 46, 0.5)d;
   padding: 0 12px; /* Add some horizontal padding */
