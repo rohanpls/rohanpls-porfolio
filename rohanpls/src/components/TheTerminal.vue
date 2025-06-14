@@ -2,20 +2,19 @@
   <div class="terminal-window" @click="focusInput">
     <div class="title-bar">
       <div class="tabs-container">
-        <div 
-          v-for="tab in tabs" 
-          :key="tab.id" 
-          class="tab-item" 
+        <div
+          v-for="tab in tabs"
+          :key="tab.id"
+          class="tab-item"
           :class="{ active: tab.isActive }"
           @click="selectTab(tab.id)"
         >
           <span>zsh</span>
           <div class="close-tab-btn" @click.stop="closeTab(tab.id)">×</div>
         </div>
-        <div class="new-tab-btn" @click="addTab" 
-          v-if="tabs.length < maxTabs">+</div>
+        <div class="new-tab-btn" @click="addTab" v-if="tabs.length < maxTabs">+</div>
       </div>
-      
+
       <div class="buttons">
         <div class="btn close"></div>
         <div class="btn minimize"></div>
@@ -46,115 +45,130 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, nextTick, onMounted, onUnmounted, inject } from 'vue';
-const openApp = inject('openApp');
+import { ref, computed, watch, nextTick, onMounted, onUnmounted, inject } from 'vue'
+const openApp = inject('openApp')
 
-const tabs = ref([]);
-const prompt = 'rohanpls@portfolio:~$';
-const inputField = ref(null);
-const terminalBody = ref(null);
+const tabs = ref([])
+const prompt = 'rohanpls@portfolio:~$'
+const inputField = ref(null)
+const terminalBody = ref(null)
 
-const isMobile = ref(false);
+const isMobile = ref(false)
 
 const checkScreenSize = () => {
-  isMobile.value = window.innerWidth <= 768;
-};
+  isMobile.value = window.innerWidth <= 768
+}
 
 const maxTabs = computed(() => {
-  return isMobile.value ? 2 : 3;
-});
+  return isMobile.value ? 2 : 3
+})
 
 onMounted(() => {
-  checkScreenSize();
-  window.addEventListener('resize', checkScreenSize);
-  addTab();
-});
+  checkScreenSize()
+  window.addEventListener('resize', checkScreenSize)
+  addTab()
+})
 
 onUnmounted(() => {
-  window.removeEventListener('resize', checkScreenSize);
-});
+  window.removeEventListener('resize', checkScreenSize)
+})
 
-
-const currentTab = computed(() => tabs.value.find(tab => tab.isActive));
+const currentTab = computed(() => tabs.value.find((tab) => tab.isActive))
 
 const createNewTab = () => ({
   id: Date.now(),
   history: [{ type: 'output', text: "Welcome! Type 'help' to see commands." }],
   input: '',
-  isActive: false
-});
+  isActive: false,
+})
 
 const addTab = () => {
   if (tabs.value.length >= maxTabs.value) {
-    return;
+    return
   }
-  tabs.value.forEach(t => t.isActive = false);
-  const newTab = createNewTab();
-  newTab.isActive = true;
-  tabs.value.push(newTab);
-};
+  tabs.value.forEach((t) => (t.isActive = false))
+  const newTab = createNewTab()
+  newTab.isActive = true
+  tabs.value.push(newTab)
+}
 
 const selectTab = (id) => {
-  tabs.value.forEach(t => t.isActive = t.id === id);
-};
+  tabs.value.forEach((t) => (t.isActive = t.id === id))
+}
 
 const closeTab = (id) => {
-  const index = tabs.value.findIndex(t => t.id === id);
-  if (index === -1) return;
+  const index = tabs.value.findIndex((t) => t.id === id)
+  if (index === -1) return
 
-  const wasActive = tabs.value[index].isActive;
-  tabs.value.splice(index, 1);
+  const wasActive = tabs.value[index].isActive
+  tabs.value.splice(index, 1)
 
   if (wasActive && tabs.value.length > 0) {
-    const newActiveIndex = Math.max(0, index - 1);
-    tabs.value[newActiveIndex].isActive = true;
+    const newActiveIndex = Math.max(0, index - 1)
+    tabs.value[newActiveIndex].isActive = true
   } else if (tabs.value.length === 0) {
-    addTab();
+    addTab()
   }
-};
+}
 
 const commands = {
-  help: () => ["'whoami'", "'projects'", "'skills'", "'contact'", "'date'", "'clear'"],
-  whoami: () => ["Rohan, a passionate developer."],
+  help: () => [
+    "'whoami'",
+    "'projects'",
+    "'skills'",
+    "'tictactoe'",
+    "'contact'",
+    "'date'",
+    "'clear'",
+  ],
+  whoami: () => ['Rohan, a passionate developer.'],
   projects: () => {
-    openApp('projects');
-    return "Launching Projects...";
+    openApp('projects')
+    return 'Launching Projects...'
   },
   skills: () => {
-    openApp('skills');
-    return "Loading Skill Visualizer...";
+    openApp('skills')
+    return 'Loading Skill Visualizer...'
   },
-  contact: () => ["Email: dev.rohanpls@gmail.com", "LinkedIn: linkedin.com/in/rohanpls"],
+  tictactoe: () => {
+    openApp('tictactoe')
+    return 'Launching Tic Tac Toe...'
+  },
+  contact: () => ['Email: dev.rohanpls@gmail.com', 'LinkedIn: linkedin.com/in/rohanpls'],
   date: () => new Date().toLocaleString(),
   clear: () => {
-    if(currentTab.value) currentTab.value.history = [];
-    return [];
-  }
-};
+    if (currentTab.value) currentTab.value.history = []
+    return []
+  },
+}
 
 const handleCommand = () => {
-  if (!currentTab.value) return;
-  const tab = currentTab.value;
-  const command = tab.input.trim().toLowerCase();
+  if (!currentTab.value) return
+  const tab = currentTab.value
+  const command = tab.input.trim().toLowerCase()
 
-  tab.history.push({ type: 'command', text: command });
+  tab.history.push({ type: 'command', text: command })
 
   if (command in commands) {
-    const output = commands[command]();
-    if (Array.isArray(output)) tab.history.push(...output.map(text => ({ type: 'output', text })));
-    else tab.history.push({ type: 'output', text: output });
+    const output = commands[command]()
+    if (Array.isArray(output)) tab.history.push(...output.map((text) => ({ type: 'output', text })))
+    else tab.history.push({ type: 'output', text: output })
   } else if (command !== '') {
-    tab.history.push({ type: 'output', text: `zsh: command not found: ${command}` });
+    tab.history.push({ type: 'output', text: `zsh: command not found: ${command}` })
   }
-  tab.input = '';
-};
+  tab.input = ''
+}
 
-const focusInput = () => inputField.value?.focus();
+const focusInput = () => inputField.value?.focus()
 
-watch(() => currentTab.value?.history, async () => {
-  await nextTick();
-  if (terminalBody.value) terminalBody.value.scrollTop = terminalBody.value.scrollHeight;
-}, { deep: true });
+watch(
+  () => currentTab.value?.history,
+  async () => {
+    await nextTick()
+    if (terminalBody.value) terminalBody.value.scrollTop = terminalBody.value.scrollHeight
+  },
+  { deep: true },
+)
 </script>
 
 <style scoped>
@@ -174,9 +188,8 @@ watch(() => currentTab.value?.history, async () => {
   font-family: 'Fira Code', monospace;
 }
 
-
 .title-bar {
-  background-color: rgba(46, 46, 46, 0.5)d;
+  background-color: rgba(46, 46, 46, 0.5) d;
   padding: 0 12px; /* Add some horizontal padding */
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
@@ -193,10 +206,20 @@ watch(() => currentTab.value?.history, async () => {
   margin-right: 8px;
   /* No margin needed anymore */
 }
-.btn { width: 12px; height: 12px; border-radius: 50%; }
-.close { background-color: #ff5f56; }
-.minimize { background-color: #ffbd2e; }
-.maximize { background-color: #27c93f; }
+.btn {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.close {
+  background-color: #ff5f56;
+}
+.minimize {
+  background-color: #ffbd2e;
+}
+.maximize {
+  background-color: #27c93f;
+}
 
 .tabs-container {
   display: flex;
@@ -206,11 +229,11 @@ watch(() => currentTab.value?.history, async () => {
 }
 
 .tab-item {
-  background-color:rgba(46, 46, 46, 0.5);
+  background-color: rgba(46, 46, 46, 0.5);
   color: #ccc;
   padding: 10px 18px; /* Added more padding */
   cursor: pointer;
-  position: relative; 
+  position: relative;
   display: flex;
   align-items: center;
   gap: 64px;
@@ -223,7 +246,7 @@ watch(() => currentTab.value?.history, async () => {
 }
 
 .tab-item.active {
-  background-color:rgba(15, 15, 15, 0.5);
+  background-color: rgba(15, 15, 15, 0.5);
   color: white;
   border-color: rgba(255, 255, 255, 0.1);
 }
@@ -243,26 +266,25 @@ watch(() => currentTab.value?.history, async () => {
 }
 
 .new-tab-btn {
-  width: 38px;  /* Increased size to better match tab height */
+  width: 38px; /* Increased size to better match tab height */
   height: 38px; /* Increased size to better match tab height */
   border-radius: 6px;
-  background-color:  rgba(46, 46, 46, 0.5);
+  background-color: rgba(46, 46, 46, 0.5);
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 1.5rem;  
+  font-size: 1.5rem;
 
   cursor: pointer;
-  margin-left: 8px; 
+  margin-left: 8px;
 }
 .new-tab-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* ... The rest of the styles are the same ... */
-  
- 
+
 /* --- Body and Input Styling (mostly the same) --- */
 .terminal-body {
   flex-grow: 1;
@@ -273,11 +295,29 @@ watch(() => currentTab.value?.history, async () => {
   line-height: 1.5;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-.line { white-space: pre-wrap; word-wrap: break-word; }
-.prompt { color: #76e3ea; font-weight: bold; margin-right: 8px; }
-.input-line { display: flex; }
-input { flex-grow: 1; background: none; border: none; color: #f0f0f0; font-family: 'Fira Code', monospace; font-size: 0.9rem; }
-input:focus { outline: none; }
+.line {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.prompt {
+  color: #76e3ea;
+  font-weight: bold;
+  margin-right: 8px;
+}
+.input-line {
+  display: flex;
+}
+input {
+  flex-grow: 1;
+  background: none;
+  border: none;
+  color: #f0f0f0;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+}
+input:focus {
+  outline: none;
+}
 @media (max-width: 768px) {
   .terminal-window {
     /* Make terminal take up more of the screen on mobile */
@@ -309,7 +349,9 @@ input:focus { outline: none; }
     font-size: 1.2rem;
   }
 
-  .prompt, input, .line {
+  .prompt,
+  input,
+  .line {
     font-size: 0.85rem; /* Slightly smaller text in the terminal body */
   }
 }
