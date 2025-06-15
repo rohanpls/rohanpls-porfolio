@@ -70,7 +70,7 @@ const openApp = (appName) => {
     component: appComponents[appName],
     title: appTitles[appName] || 'App',
     zIndex: nextZIndex.value++,
-    position: { x: window.innerWidth / 2 - 400, y: window.innerHeight / 2 - 250 },
+    position: { x: 1225, y: 200 },
   }
   openWindows.value.push(newWindow)
 }

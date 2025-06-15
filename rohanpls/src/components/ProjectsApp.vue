@@ -21,7 +21,6 @@ import Card from './ACard.vue'
 import imageOne from '@/assets/images/image-1.png'
 import imageTwo from '@/assets/images/image-2.png'
 import imageThree from '@/assets/images/image-3.png'
-import imageFour from '@/assets/images/image-4.png'
 
 const cards = ref([
   {
