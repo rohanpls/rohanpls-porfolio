@@ -26,12 +26,18 @@ const appComponents = {
 }
 
 const dockApps = ref([
+  { name: 'close-all', title: 'Homepage | Close All Apps', icon: dockIcons.closeAll },
   { name: 'terminal', title: 'Terminal', icon: dockIcons.terminal },
   { name: 'projects', title: 'Projects', icon: dockIcons.projects },
   { name: 'skills', title: 'Skills', icon: dockIcons.skills },
   { name: 'tictactoe', title: 'Tic-Tac-Toe', icon: dockIcons.tictactoe },
   { name: 'contact', title: 'Contact', icon: dockIcons.contact },
 ])
+
+const closeAllWindows = () => {
+  openWindows.value = []
+}
+
 const bringWindowToFront = (id) => {
   const windowToFocus =
     openWindows.value.find((w) => w.id === id) || (id === 'main-terminal' ? terminal.value : null)
@@ -41,6 +47,11 @@ const bringWindowToFront = (id) => {
 }
 
 const openApp = (appName) => {
+  if (appName === 'close-all') {
+    closeAllWindows()
+    return
+  }
+
   if (appName === 'terminal') {
     if (terminal.value.isVisible) {
       bringWindowToFront('main-terminal')
