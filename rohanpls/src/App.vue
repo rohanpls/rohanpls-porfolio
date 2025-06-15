@@ -1,9 +1,10 @@
 <script setup>
-import { ref, provide, shallowRef } from 'vue'
+import { ref, provide, shallowRef, computed } from 'vue'
 import MainDisplay from './components/MainDisplay.vue'
 import AppWindow from './components/AppWindow.vue'
 import AppDock from './components/AppDock.vue'
 import TheTerminal from './components/TheTerminal.vue'
+import { dockIcons } from './components/dockIcons.js'
 import ProjectsApp from './components/ProjectsApp.vue'
 import SkillsApp from './components/SkillsApp.vue'
 import TicTacToeApp from './components/TicTacToeApp.vue'
@@ -26,13 +27,12 @@ const appComponents = {
 }
 
 const dockApps = ref([
-  { name: 'terminal', title: 'Terminal', initials: 'T' },
-  { name: 'projects', title: 'Projects', initials: 'P' },
-  { name: 'skills', title: 'Skills', initials: 'S' },
-  { name: 'tictactoe', title: 'Tic-Tac-Toe', initials: 'T' },
-  { name: 'contact', title: 'Contact', initials: 'C' },
+  { name: 'terminal', title: 'Terminal', icon: dockIcons.terminal },
+  { name: 'projects', title: 'Projects', icon: dockIcons.projects },
+  { name: 'skills', title: 'Skills', icon: dockIcons.skills },
+  { name: 'tictactoe', title: 'Tic-Tac-Toe', icon: dockIcons.tictactoe },
+  { name: 'contact', title: 'Contact', icon: dockIcons.contact },
 ])
-
 const bringWindowToFront = (id) => {
   const windowToFocus =
     openWindows.value.find((w) => w.id === id) || (id === 'main-terminal' ? terminal.value : null)
