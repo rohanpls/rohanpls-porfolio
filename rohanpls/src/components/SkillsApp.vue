@@ -5,7 +5,7 @@
       <ul class="honeycomb">
         <li v-for="skill in category.skills" :key="skill.name" class="honeycomb-cell">
           <div class="cell-bg">
-             <i :class="skill.icon"></i>
+            <i :class="skill.icon"></i>
           </div>
           <div class="cell-title">{{ skill.name }}</div>
         </li>
@@ -15,7 +15,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref } from 'vue'
 
 const skillCategories = ref([
   {
@@ -24,29 +24,26 @@ const skillCategories = ref([
       { name: 'Java', icon: 'devicon-java-plain' },
       { name: 'Python', icon: 'devicon-python-plain' },
       { name: 'TypeScript', icon: 'devicon-typescript-plain' },
-      { name: 'Node.js', icon: 'devicon-nodejs-plain' }
-    ]
+      { name: 'Node.js', icon: 'devicon-nodejs-plain' },
+    ],
   },
   {
     title: 'Frameworks & Libraries',
     skills: [
       { name: 'Spring Boot', icon: 'devicon-spring-plain' },
       { name: 'React', icon: 'devicon-react-original' },
-      // --- CHANGE: Replaced Angular with Vue.js ---
       { name: 'Vue.js', icon: 'devicon-vuejs-plain' },
-      { name: 'Express', icon: 'devicon-express-original' }
-      // --- CHANGE: Hibernate has been removed ---
-    ]
+      { name: 'Express', icon: 'devicon-express-original' },
+    ],
   },
   {
     title: 'Databases',
     skills: [
       { name: 'PostgreSQL', icon: 'devicon-postgresql-plain' },
       { name: 'DynamoDB', icon: 'devicon-amazonwebservices-plain' },
-      // --- CHANGE: SQL icon is now MySQL ---
       { name: 'SQL', icon: 'devicon-mysql-plain' },
-      { name: 'NoSQL', icon: 'devicon-mongodb-plain' }
-    ]
+      { name: 'NoSQL', icon: 'devicon-mongodb-plain' },
+    ],
   },
   {
     title: 'DevOps & Cloud',
@@ -55,10 +52,10 @@ const skillCategories = ref([
       { name: 'Docker', icon: 'devicon-docker-plain' },
       { name: 'Jenkins', icon: 'devicon-jenkins-line' },
       { name: 'Git', icon: 'devicon-git-plain' },
-      { name: 'CI/CD', icon: 'devicon-gitlab-plain' }
-    ]
-  }
-]);
+      { name: 'CI/CD', icon: 'devicon-gitlab-plain' },
+    ],
+  },
+])
 </script>
 
 <style lang="scss" scoped>
@@ -119,7 +116,7 @@ const skillCategories = ref([
     color: #ccc;
     transition: color 0.3s ease;
   }
-  
+
   .cell-title {
     position: absolute;
     bottom: 20px;
@@ -135,12 +132,12 @@ const skillCategories = ref([
   &:hover {
     transform: scale(1.1);
     .cell-bg {
-      background-color: #3B82F6;
+      background-color: #3b82f6;
     }
     .cell-title {
       opacity: 1;
     }
-    
+
     /* --- HOVER FIX: Make selector more specific --- */
     .cell-bg i {
       color: white;

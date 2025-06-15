@@ -1,46 +1,46 @@
 <template>
   <div class="hero-container" ref="container">
     <div class="background-image" :style="bgStyle"></div>
-    
+
     <div class="content-wrapper">
       <h1>@rohanpls</h1>
-       <Terminal />
+      <Terminal />
     </div>
   </div>
 </template>
 
 <script setup>
-import Terminal from './TheTerminal.vue';
+import Terminal from './TheTerminal.vue'
 
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 
-const container = ref(null);
-const mouseX = ref(0);
-const mouseY = ref(0);
+const container = ref(null)
+const mouseX = ref(0)
+const mouseY = ref(0)
 
 const handleMouseMove = (event) => {
-  if (!container.value) return;
-  const rect = container.value.getBoundingClientRect();
-  mouseX.value = event.clientX - (rect.left + rect.width / 2);
-  mouseY.value = event.clientY - (rect.top + rect.height / 2);
-};
+  if (!container.value) return
+  const rect = container.value.getBoundingClientRect()
+  mouseX.value = event.clientX - (rect.left + rect.width / 2)
+  mouseY.value = event.clientY - (rect.top + rect.height / 2)
+}
 
 const bgStyle = computed(() => {
-  const parallaxStrength = 0.015;
-  const x = mouseX.value * parallaxStrength;
-  const y = mouseY.value * parallaxStrength;
+  const parallaxStrength = 0.015
+  const x = mouseX.value * parallaxStrength
+  const y = mouseY.value * parallaxStrength
   return {
     transform: `scale(1.1) translateX(${x}px) translateY(${y}px)`,
-    backgroundImage: `url('/hero-background.jpg')`
-  };
-});
+    backgroundImage: `url('/hero-background.jpg')`,
+  }
+})
 
 onMounted(() => {
-  window.addEventListener('mousemove', handleMouseMove);
-});
+  window.addEventListener('mousemove', handleMouseMove)
+})
 onUnmounted(() => {
-  window.removeEventListener('mousemove', handleMouseMove);
-});
+  window.removeEventListener('mousemove', handleMouseMove)
+})
 </script>
 
 <style scoped>
@@ -66,7 +66,7 @@ onUnmounted(() => {
 }
 
 .content-wrapper {
-  position: relative; 
+  position: relative;
   z-index: 1;
   display: flex;
   flex-direction: column;
@@ -77,7 +77,7 @@ h1 {
   font-family: 'Montserrat', sans-serif;
   font-size: 5rem;
   font-weight: 800;
-  color: white; 
+  color: white;
 }
 
 @media (max-width: 768px) {

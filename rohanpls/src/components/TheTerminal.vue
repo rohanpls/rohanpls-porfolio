@@ -151,7 +151,10 @@ const commands = {
     openApp('tictactoe')
     return 'Launching Tic Tac Toe...'
   },
-  contact: () => ['Email: dev.rohanpls@gmail.com', 'LinkedIn: linkedin.com/in/rohanpls'],
+  contact: () => {
+    openApp('contact')
+    return 'Opening contact card...'
+  },
   clear: () => {
     if (currentTab.value) currentTab.value.history = []
     return []

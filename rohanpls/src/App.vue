@@ -5,11 +5,13 @@ import AppWindow from './components/AppWindow.vue'
 import ProjectsApp from './components/ProjectsApp.vue'
 import SkillsApp from './components/SkillsApp.vue'
 import TicTacToeApp from './components/TicTacToeApp.vue'
+import ContactApp from './components/ContactApp.vue'
 
 const appComponents = {
   projects: shallowRef(ProjectsApp),
   skills: shallowRef(SkillsApp),
   tictactoe: shallowRef(TicTacToeApp),
+  contact: shallowRef(ContactApp),
 }
 
 const openWindows = ref([])
@@ -25,6 +27,7 @@ const openApp = (appName) => {
     projects: 'Projects',
     skills: 'Skills & Proficiencies',
     tictactoe: 'Tic Tac Toe',
+    contact: 'Contact Card',
   }
   const newWindow = {
     id: Date.now(),
