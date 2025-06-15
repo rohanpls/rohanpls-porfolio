@@ -47,7 +47,7 @@ const cards = ref([
 <style lang="scss" scoped>
 .projects-app-container {
   font-family: 'Montserrat', sans-serif;
-  background-color: #7e83c7;
+  background-color: #363535a2;
   -webkit-font-smoothing: antialiased;
   width: 100%;
   height: 100%;
@@ -60,7 +60,7 @@ const cards = ref([
   font-family: 'Montserrat', sans-serif;
   font-size: 24px;
   font-weight: 700;
-  color: #5d4037;
+  color: white;
   text-align: center;
 }
 

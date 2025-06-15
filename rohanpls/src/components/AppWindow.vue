@@ -72,7 +72,7 @@ const bringToFront = () => {
 }
 
 .title-bar {
-  background-color: #3a3d4a;
+  background-color: rgba(15, 15, 15, 0.5);
   padding: 10px 12px;
   border-top-left-radius: 11px;
   border-top-right-radius: 11px;
@@ -108,7 +108,7 @@ const bringToFront = () => {
 .title {
   color: #ccc;
   font-family: sans-serif;
-  font-size: 0.8rem;
+  font-size: 1rem;
 }
 
 .window-body {
