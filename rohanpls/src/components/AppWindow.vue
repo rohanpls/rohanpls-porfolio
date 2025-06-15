@@ -73,8 +73,8 @@ const bringToFront = () => {
 
 .title-bar {
   background-color: #3a3d4a;
-  padding: 0 12px;
-  height: 40px;
+  padding: 10px 12px;
+  height: 56px;
   border-top-left-radius: 11px;
   border-top-right-radius: 11px;
   display: flex;
