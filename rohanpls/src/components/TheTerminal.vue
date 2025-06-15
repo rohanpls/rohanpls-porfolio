@@ -56,11 +56,9 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted, inject } from 'vue'
 import ricebowlImage from '@/assets/images/ricebowl.png'
 
-// --- NEW: Refs for dragging logic ---
 const terminalWindowRef = ref(null)
-const position = ref({ x: 70, y: 70 }) // Initial position of the terminal
+const position = ref({ x: 10, y: 70 })
 
-// --- NEW: Drag handler functions ---
 const startDrag = (event) => {
   const initialMouseX = event.clientX
   const initialMouseY = event.clientY
@@ -83,7 +81,6 @@ const startDrag = (event) => {
   window.addEventListener('mouseup', handleMouseUp)
 }
 
-// --- The rest of your script logic is unchanged ---
 const openApp = inject('openApp')
 const tabs = ref([])
 const prompt = 'rohanpls@portfolio:~$'
@@ -197,14 +194,13 @@ watch(
 </script>
 
 <style scoped>
-/* MODIFIED: Changed positioning to allow dragging */
 .terminal-window {
   width: 700px;
   max-width: 90vw;
   height: 400px;
-  position: fixed; /* Use fixed positioning to move around the viewport */
-  top: 70px; /* Initial position (will be updated by script) */
-  left: 70px; /* Initial position (will be updated by script) */
+  position: fixed;
+  top: 70px;
+  left: 10px;
   background-color: rgba(15, 15, 15, 0.5);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -214,10 +210,8 @@ watch(
   display: flex;
   flex-direction: column;
   font-family: 'Fira Code', monospace;
-  z-index: 9; /* Give it a z-index to sit on top of other content */
+  z-index: 9;
 }
-
-/* MODIFIED: Add grab cursor to title bar */
 .title-bar {
   background-color: rgba(46, 46, 46, 0.5);
   padding: 0 12px;
@@ -228,13 +222,12 @@ watch(
   justify-content: space-between;
   position: relative;
   height: 56px;
-  cursor: grab; /* Indicates this area is draggable */
+  cursor: grab;
 }
 .title-bar:active {
   cursor: grabbing;
 }
 
-/* All other styles remain the same */
 .welcome-image {
   max-width: 150px;
   margin-bottom: 1em;

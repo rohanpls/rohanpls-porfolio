@@ -1,19 +1,22 @@
 <script setup>
-import { ref, provide, shallowRef, computed } from 'vue'
+import { ref, provide, shallowRef } from 'vue'
 import MainDisplay from './components/MainDisplay.vue'
 import AppWindow from './components/AppWindow.vue'
 import AppDock from './components/AppDock.vue'
-
-// App component imports
+import TheTerminal from './components/TheTerminal.vue'
 import ProjectsApp from './components/ProjectsApp.vue'
 import SkillsApp from './components/SkillsApp.vue'
 import TicTacToeApp from './components/TicTacToeApp.vue'
 import ContactApp from './components/ContactApp.vue'
 
-// --- State Management ---
 const openWindows = ref([])
-const terminalState = ref({ isVisible: true }) // State for the main terminal
 let nextZIndex = ref(10)
+
+const terminal = ref({
+  id: 'main-terminal',
+  isVisible: true,
+  zIndex: 11,
+})
 
 const appComponents = {
   projects: shallowRef(ProjectsApp),
@@ -30,10 +33,22 @@ const dockApps = ref([
   { name: 'contact', title: 'Contact', initials: 'C' },
 ])
 
-// MODIFIED: openApp now correctly toggles the main terminal's visibility
+const bringWindowToFront = (id) => {
+  const windowToFocus =
+    openWindows.value.find((w) => w.id === id) || (id === 'main-terminal' ? terminal.value : null)
+  if (windowToFocus) {
+    windowToFocus.zIndex = nextZIndex.value++
+  }
+}
+
 const openApp = (appName) => {
   if (appName === 'terminal') {
-    terminalState.value.isVisible = !terminalState.value.isVisible
+    if (terminal.value.isVisible) {
+      bringWindowToFront('main-terminal')
+    } else {
+      terminal.value.isVisible = true
+      setTimeout(() => bringWindowToFront('main-terminal'), 0)
+    }
     return
   }
 
@@ -59,7 +74,6 @@ const openApp = (appName) => {
     position: { x: window.innerWidth / 2 - 400, y: window.innerHeight / 2 - 250 },
   }
   openWindows.value.push(newWindow)
-  bringWindowToFront(newWindow.id)
 }
 
 const closeApp = (id) => {
@@ -67,18 +81,16 @@ const closeApp = (id) => {
   if (index !== -1) openWindows.value.splice(index, 1)
 }
 
-const bringWindowToFront = (id) => {
-  const windowToFocus = openWindows.value.find((w) => w.id === id)
-  if (windowToFocus) {
-    windowToFocus.zIndex = nextZIndex.value++
-  }
-}
-
 provide('openApp', openApp)
+provide('focusWindow', bringWindowToFront)
 </script>
 
 <template>
-  <MainDisplay :is-terminal-visible="terminalState.isVisible" />
+  <MainDisplay
+    :is-terminal-visible="terminal.isVisible"
+    :terminal-z-index="terminal.zIndex"
+    @focus-terminal="bringWindowToFront('main-terminal')"
+  />
 
   <AppDock :apps="dockApps" @launch-app="openApp" />
 
@@ -98,13 +110,11 @@ provide('openApp', openApp)
 </template>
 
 <style>
-/* Global styles are unchanged */
 body {
   margin: 0;
   padding: 0;
   background-color: #0d1117;
 }
-
 .window-zoom-enter-active,
 .window-zoom-leave-active {
   transition: all 0.3s ease;

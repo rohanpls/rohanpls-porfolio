@@ -3,21 +3,23 @@
     <div class="background-image" :style="bgStyle"></div>
     <div class="content-wrapper">
       <h1>@rohanpls</h1>
-      <TheTerminal v-if="isTerminalVisible" />
+
+      <TheTerminal
+        v-if="isTerminalVisible"
+        :style="{ zIndex: terminalZIndex }"
+        @mousedown="focusTerminal"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, defineProps } from 'vue'
 import TheTerminal from './TheTerminal.vue'
 
-// Define the prop that App.vue will pass down
 defineProps({
-  isTerminalVisible: {
-    type: Boolean,
-    default: true,
-  },
+  isTerminalVisible: { type: Boolean, default: true },
+  terminalZIndex: { type: Number, default: 9 },
 })
 
 const bgStyle = computed(() => ({
@@ -60,10 +62,8 @@ h1 {
   margin: 0;
   text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
-/* We add a transition to the terminal for smooth appearing/disappearing */
+
 :deep(.terminal-window) {
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+  position: relative;
 }
 </style>
