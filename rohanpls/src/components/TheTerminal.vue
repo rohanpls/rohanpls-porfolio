@@ -1,19 +1,25 @@
 <template>
-  <div class="terminal-window" @click="focusInput">
-    <div class="title-bar">
+  <div
+    class="terminal-window"
+    ref="terminalWindowRef"
+    @click="focusInput"
+    :style="{ top: position.y + 'px', left: position.x + 'px' }"
+  >
+    <div class="title-bar" @mousedown.prevent="startDrag">
       <div class="tabs-container">
         <div
           v-for="tab in tabs"
           :key="tab.id"
           class="tab-item"
           :class="{ active: tab.isActive }"
-          @click="selectTab(tab.id)"
+          @click.stop="selectTab(tab.id)"
         >
           <span>zsh</span>
           <div class="close-tab-btn" @click.stop="closeTab(tab.id)">×</div>
         </div>
-        <div class="new-tab-btn" @click="addTab" v-if="tabs.length < maxTabs">+</div>
+        <div class="new-tab-btn" @click.stop="addTab" v-if="tabs.length < maxTabs">+</div>
       </div>
+
       <div class="buttons">
         <div class="btn close"></div>
         <div class="btn minimize"></div>
@@ -22,32 +28,15 @@
     </div>
 
     <div class="terminal-body" ref="terminalBody">
-      <div class="content-wrapper" v-if="currentTab">
-        <template v-for="(line, index) in currentTab.history" :key="index">
-          <div
-            v-if="line.image"
-            class="line image-line"
-            :class="{ 'animate-fade-up': !currentTab.hasAnimated }"
-            :style="{ animationDelay: index * 80 + 'ms' }"
-          >
-            <img :src="line.image" alt="Welcome Art" class="welcome-image" />
-          </div>
-          <div
-            v-else
-            class="line"
-            :class="{ 'animate-fade-up': !currentTab.hasAnimated }"
-            :style="{ animationDelay: index * 80 + 'ms' }"
-          >
+      <template v-if="currentTab">
+        <div v-for="(line, index) in currentTab.history" :key="index" class="line">
+          <img v-if="line.image" :src="line.image" alt="Welcome Art" class="welcome-image" />
+          <span v-else>
             <span v-if="line.type === 'command'" class="prompt">{{ prompt }}</span>
             <span>{{ line.text }}</span>
-          </div>
-        </template>
-
-        <div
-          class="input-line"
-          :class="{ 'animate-fade-up': !currentTab.hasAnimated }"
-          :style="{ animationDelay: currentTab.history.length * 80 + 'ms' }"
-        >
+          </span>
+        </div>
+        <div class="input-line">
           <span class="prompt">{{ prompt }}</span>
           <input
             ref="inputField"
@@ -58,7 +47,7 @@
             autofocus
           />
         </div>
-      </div>
+      </template>
     </div>
   </div>
 </template>
@@ -67,32 +56,55 @@
 import { ref, computed, watch, nextTick, onMounted, onUnmounted, inject } from 'vue'
 import ricebowlImage from '@/assets/images/ricebowl.png'
 
+// --- NEW: Refs for dragging logic ---
+const terminalWindowRef = ref(null)
+const position = ref({ x: 70, y: 70 }) // Initial position of the terminal
+
+// --- NEW: Drag handler functions ---
+const startDrag = (event) => {
+  const initialMouseX = event.clientX
+  const initialMouseY = event.clientY
+  const initialTerminalX = position.value.x
+  const initialTerminalY = position.value.y
+
+  const handleMouseMove = (moveEvent) => {
+    const dx = moveEvent.clientX - initialMouseX
+    const dy = moveEvent.clientY - initialMouseY
+    position.value.x = initialTerminalX + dx
+    position.value.y = initialTerminalY + dy
+  }
+
+  const handleMouseUp = () => {
+    window.removeEventListener('mousemove', handleMouseMove)
+    window.removeEventListener('mouseup', handleMouseUp)
+  }
+
+  window.addEventListener('mousemove', handleMouseMove)
+  window.addEventListener('mouseup', handleMouseUp)
+}
+
+// --- The rest of your script logic is unchanged ---
 const openApp = inject('openApp')
 const tabs = ref([])
 const prompt = 'rohanpls@portfolio:~$'
 const inputField = ref(null)
 const terminalBody = ref(null)
 const isMobile = ref(false)
-
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 768
 }
 const maxTabs = computed(() => {
   return isMobile.value ? 2 : 3
 })
-
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
-  if (tabs.value.length === 0) addTab()
+  addTab()
 })
-
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
 })
-
 const currentTab = computed(() => tabs.value.find((tab) => tab.isActive))
-
 const createNewTab = () => ({
   id: Date.now(),
   history: [
@@ -101,17 +113,7 @@ const createNewTab = () => ({
   ],
   input: '',
   isActive: false,
-  hasAnimated: false,
 })
-
-watch(currentTab, (newTab) => {
-  if (newTab && !newTab.hasAnimated) {
-    setTimeout(() => {
-      newTab.hasAnimated = true
-    }, 1000)
-  }
-})
-
 const addTab = () => {
   if (tabs.value.length >= maxTabs.value) {
     return
@@ -137,7 +139,15 @@ const closeTab = (id) => {
   }
 }
 const commands = {
-  help: () => ["'whoami'", "'projects'", "'skills'", "'tictactoe'", "'contact'", "'clear'"],
+  help: () => [
+    "'whoami'",
+    "'projects'",
+    "'skills'",
+    "'tictactoe'",
+    "'contact'",
+    "'date'",
+    "'clear'",
+  ],
   whoami: () => ['Rohan, a passionate developer.'],
   projects: () => {
     openApp('projects')
@@ -155,6 +165,7 @@ const commands = {
     openApp('contact')
     return 'Opening contact card...'
   },
+  date: () => new Date().toLocaleString(),
   clear: () => {
     if (currentTab.value) currentTab.value.history = []
     return []
@@ -186,17 +197,14 @@ watch(
 </script>
 
 <style scoped>
-.welcome-image {
-  max-width: 150px;
-  margin-bottom: 1em;
-}
-.image-line {
-  padding: 0.5em 0;
-}
+/* MODIFIED: Changed positioning to allow dragging */
 .terminal-window {
   width: 700px;
   max-width: 90vw;
   height: 400px;
+  position: fixed; /* Use fixed positioning to move around the viewport */
+  top: 70px; /* Initial position (will be updated by script) */
+  left: 70px; /* Initial position (will be updated by script) */
   background-color: rgba(15, 15, 15, 0.5);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -205,9 +213,11 @@ watch(
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
-  margin-top: 2rem;
   font-family: 'Fira Code', monospace;
+  z-index: 9; /* Give it a z-index to sit on top of other content */
 }
+
+/* MODIFIED: Add grab cursor to title bar */
 .title-bar {
   background-color: rgba(46, 46, 46, 0.5);
   padding: 0 12px;
@@ -218,6 +228,19 @@ watch(
   justify-content: space-between;
   position: relative;
   height: 56px;
+  cursor: grab; /* Indicates this area is draggable */
+}
+.title-bar:active {
+  cursor: grabbing;
+}
+
+/* All other styles remain the same */
+.welcome-image {
+  max-width: 150px;
+  margin-bottom: 1em;
+}
+.image-line {
+  padding: 0.5em 0;
 }
 .buttons {
   display: flex;
