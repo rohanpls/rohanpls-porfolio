@@ -1,11 +1,19 @@
 <script setup>
-import { ref, provide, shallowRef } from 'vue'
+import { ref, provide, shallowRef, computed } from 'vue'
 import MainDisplay from './components/MainDisplay.vue'
 import AppWindow from './components/AppWindow.vue'
+import AppDock from './components/AppDock.vue'
+
+// App component imports
 import ProjectsApp from './components/ProjectsApp.vue'
 import SkillsApp from './components/SkillsApp.vue'
 import TicTacToeApp from './components/TicTacToeApp.vue'
 import ContactApp from './components/ContactApp.vue'
+
+// --- State Management ---
+const openWindows = ref([])
+const terminalState = ref({ isVisible: true }) // State for the main terminal
+let nextZIndex = ref(10)
 
 const appComponents = {
   projects: shallowRef(ProjectsApp),
@@ -14,21 +22,34 @@ const appComponents = {
   contact: shallowRef(ContactApp),
 }
 
-const openWindows = ref([])
-let nextZIndex = ref(10)
+const dockApps = ref([
+  { name: 'terminal', title: 'Terminal', initials: 'T' },
+  { name: 'projects', title: 'Projects', initials: 'P' },
+  { name: 'skills', title: 'Skills', initials: 'S' },
+  { name: 'tictactoe', title: 'Tic-Tac-Toe', initials: 'T' },
+  { name: 'contact', title: 'Contact', initials: 'C' },
+])
 
+// MODIFIED: openApp now correctly toggles the main terminal's visibility
 const openApp = (appName) => {
+  if (appName === 'terminal') {
+    terminalState.value.isVisible = !terminalState.value.isVisible
+    return
+  }
+
   const existingWindow = openWindows.value.find((w) => w.appName === appName)
   if (existingWindow) {
     bringWindowToFront(existingWindow.id)
     return
   }
+
   const appTitles = {
     projects: 'Projects',
     skills: 'Skills & Proficiencies',
     tictactoe: 'Tic Tac Toe',
     contact: 'Contact Card',
   }
+
   const newWindow = {
     id: Date.now(),
     appName: appName,
@@ -36,25 +57,20 @@ const openApp = (appName) => {
     title: appTitles[appName] || 'App',
     zIndex: nextZIndex.value++,
     position: { x: window.innerWidth / 2 - 400, y: window.innerHeight / 2 - 250 },
-    isClosing: false,
   }
   openWindows.value.push(newWindow)
+  bringWindowToFront(newWindow.id)
 }
 
 const closeApp = (id) => {
   const index = openWindows.value.findIndex((w) => w.id === id)
-  if (index !== -1) {
-    openWindows.value[index].isClosing = true
-    setTimeout(() => {
-      openWindows.value.splice(index, 1)
-    }, 300)
-  }
+  if (index !== -1) openWindows.value.splice(index, 1)
 }
 
 const bringWindowToFront = (id) => {
-  const window = openWindows.value.find((w) => w.id === id)
-  if (window) {
-    window.zIndex = nextZIndex.value++
+  const windowToFocus = openWindows.value.find((w) => w.id === id)
+  if (windowToFocus) {
+    windowToFocus.zIndex = nextZIndex.value++
   }
 }
 
@@ -62,13 +78,14 @@ provide('openApp', openApp)
 </script>
 
 <template>
-  <MainDisplay />
+  <MainDisplay :is-terminal-visible="terminalState.isVisible" />
+
+  <AppDock :apps="dockApps" @launch-app="openApp" />
 
   <transition-group name="window-zoom">
     <AppWindow
       v-for="window in openWindows"
       :key="window.id"
-      v-show="!window.isClosing"
       :title="window.title"
       :initialPosition="window.position"
       :zIndex="window.zIndex"
@@ -81,6 +98,7 @@ provide('openApp', openApp)
 </template>
 
 <style>
+/* Global styles are unchanged */
 body {
   margin: 0;
   padding: 0;

@@ -1,59 +1,40 @@
 <template>
-  <div class="hero-container" ref="container">
+  <div class="main-display-container">
     <div class="background-image" :style="bgStyle"></div>
-
     <div class="content-wrapper">
       <h1>@rohanpls</h1>
-      <Terminal />
+      <TheTerminal v-if="isTerminalVisible" />
     </div>
   </div>
 </template>
 
 <script setup>
-import Terminal from './TheTerminal.vue'
+import { computed } from 'vue'
+import TheTerminal from './TheTerminal.vue'
 
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-
-const container = ref(null)
-const mouseX = ref(0)
-const mouseY = ref(0)
-
-const handleMouseMove = (event) => {
-  if (!container.value) return
-  const rect = container.value.getBoundingClientRect()
-  mouseX.value = event.clientX - (rect.left + rect.width / 2)
-  mouseY.value = event.clientY - (rect.top + rect.height / 2)
-}
-
-const bgStyle = computed(() => {
-  const parallaxStrength = 0.015
-  const x = mouseX.value * parallaxStrength
-  const y = mouseY.value * parallaxStrength
-  return {
-    transform: `scale(1.1) translateX(${x}px) translateY(${y}px)`,
-    backgroundImage: `url('/hero-background.jpg')`,
-  }
+// Define the prop that App.vue will pass down
+defineProps({
+  isTerminalVisible: {
+    type: Boolean,
+    default: true,
+  },
 })
 
-onMounted(() => {
-  window.addEventListener('mousemove', handleMouseMove)
-})
-onUnmounted(() => {
-  window.removeEventListener('mousemove', handleMouseMove)
-})
+const bgStyle = computed(() => ({
+  backgroundImage: `url('/hero-background.jpg')`,
+}))
 </script>
 
-<style scoped>
-.hero-container {
+<style lang="scss" scoped>
+.main-display-container {
   height: 100vh;
   width: 100%;
-  position: relative;
-  overflow: hidden;
   display: flex;
   justify-content: center;
   align-items: center;
+  position: relative;
+  overflow: hidden;
 }
-
 .background-image {
   position: absolute;
   top: -5%;
@@ -62,9 +43,8 @@ onUnmounted(() => {
   height: 110%;
   background-size: cover;
   background-position: center;
-  transition: transform 0.2s ease-out;
+  z-index: 0;
 }
-
 .content-wrapper {
   position: relative;
   z-index: 1;
@@ -72,17 +52,18 @@ onUnmounted(() => {
   flex-direction: column;
   align-items: center;
 }
-
 h1 {
   font-family: 'Montserrat', sans-serif;
-  font-size: 5rem;
-  font-weight: 800;
+  font-size: 6rem;
+  font-weight: 700;
   color: white;
+  margin: 0;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
-
-@media (max-width: 768px) {
-  h1 {
-    font-size: 3rem;
-  }
+/* We add a transition to the terminal for smooth appearing/disappearing */
+:deep(.terminal-window) {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
 }
 </style>
