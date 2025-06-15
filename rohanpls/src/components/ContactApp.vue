@@ -44,29 +44,26 @@
 </template>
 
 <style scoped>
-/* Main container for the app window */
 .contact-app-container {
   height: 90%;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: rgba(15, 15, 15, 0.1);
-  backdrop-filter: blur(20px); /* Dark background to make the card pop */
+  backdrop-filter: blur(20px);
   padding: 20px;
   border-radius: 5px;
   font-family: 'Raleway', sans-serif;
-  overflow: hidden; /* Hide anything that goes outside the container */
+  overflow: hidden;
 }
 
-/* This is the 3D space for the flip animation */
 .flip-card {
   background-color: transparent;
   width: 420px;
   height: 240px;
-  perspective: 1000px; /* This creates the 3D effect */
+  perspective: 1000px;
 }
 
-/* This container holds both sides and is what gets flipped */
 .card-inner {
   position: relative;
   width: 100%;
@@ -76,18 +73,16 @@
   transform-style: preserve-3d;
 }
 
-/* This is the main hover trigger: it flips the inner card */
 .flip-card:hover .card-inner {
   transform: rotateY(180deg);
 }
 
-/* Base styles for both front and back of the card */
 .card-front,
 .card-back {
   position: absolute;
   width: 100%;
   height: 100%;
-  -webkit-backface-visibility: hidden; /* Hides the back of the card when flipped */
+  -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   border-radius: 12px;
   display: flex;
@@ -96,7 +91,6 @@
   align-items: center;
 }
 
-/* Styling for the front of the card */
 .card-front {
   background: linear-gradient(145deg, #f9f9f9, #ffffff);
   border: 1px solid rgba(255, 255, 255, 0.5);
@@ -108,11 +102,10 @@
   font-weight: 700;
 }
 
-/* Styling for the back of the card */
 .card-back {
   background: linear-gradient(145deg, #2c3e50, #34495e);
   color: white;
-  transform: rotateY(180deg); /* Start with the back side flipped away */
+  transform: rotateY(180deg);
   padding: 20px;
 }
 

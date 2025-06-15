@@ -28,20 +28,19 @@ const AI_PLAYER = 'O'
 
 const board = ref(Array(9).fill(null))
 const winner = ref(null)
-const isHumanTurn = ref(true) // Human always starts
+const isHumanTurn = ref(true)
 
 const winningCombinations = [
   [0, 1, 2],
   [3, 4, 5],
-  [6, 7, 8], // rows
+  [6, 7, 8],
   [0, 3, 6],
   [1, 4, 7],
-  [2, 5, 8], // columns
+  [2, 5, 8],
   [0, 4, 8],
-  [2, 4, 6], // diagonals
+  [2, 4, 6],
 ]
 
-// A computed property for the status message for a better UX
 const statusMessage = computed(() => {
   if (winner.value) return `Winner: ${winner.value === HUMAN_PLAYER ? 'You!' : 'Computer'}`
   if (isDraw.value) return "It's a Draw!"
@@ -63,27 +62,22 @@ const checkWinner = () => {
   return false
 }
 
-// --- UPDATED: This function now only handles the human's move ---
 const humanMove = (index) => {
   if (!isHumanTurn.value || board.value[index] || winner.value) {
-    return // Do nothing if it's not the human's turn, cell is taken, or game is over
+    return
   }
 
-  // Human makes a move
   board.value[index] = HUMAN_PLAYER
   isHumanTurn.value = false
 
-  // Check for winner, then trigger computer's move if the game isn't over
   if (!checkWinner() && !isDraw.value) {
-    setTimeout(computerMove, 500) // Add a small delay for realism
+    setTimeout(computerMove, 500)
   }
 }
 
-// --- NEW: The computer's AI logic ---
 const computerMove = () => {
   if (winner.value) return
 
-  // 1. Check if AI can win
   for (let i = 0; i < 9; i++) {
     if (board.value[i] === null) {
       board.value[i] = AI_PLAYER
@@ -91,27 +85,25 @@ const computerMove = () => {
         isHumanTurn.value = true
         return
       }
-      board.value[i] = null // Backtrack
+      board.value[i] = null
     }
   }
 
-  // 2. Check if AI needs to block the human from winning
   for (let i = 0; i < 9; i++) {
     if (board.value[i] === null) {
       board.value[i] = HUMAN_PLAYER
       if (checkWinner()) {
-        board.value[i] = AI_PLAYER // Block the spot
-        winner.value = null // Reset winner check
+        board.value[i] = AI_PLAYER
+        winner.value = null
         isHumanTurn.value = true
         return
       }
-      board.value[i] = null // Backtrack
+      board.value[i] = null
     }
   }
-  winner.value = null // Important to reset after blocking check
+  winner.value = null
 
-  // 3. AI takes the best strategic spot
-  const strategicMoves = [4, 0, 2, 6, 8, 1, 3, 5, 7] // Center, corners, then sides
+  const strategicMoves = [4, 0, 2, 6, 8, 1, 3, 5, 7]
   for (const move of strategicMoves) {
     if (board.value[move] === null) {
       board.value[move] = AI_PLAYER

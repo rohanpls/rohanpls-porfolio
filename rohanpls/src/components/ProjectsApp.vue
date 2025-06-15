@@ -37,16 +37,10 @@ const cards = ref([
     url: 'https://github.com/rohanpls/shellgreeter',
   },
   {
-    title: 'Adding Soon',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
+    title: 'rohanpls Portfolio',
+    content: 'This portfolio is made using Vue 3, which you are viewing right now!',
     image: imageThree,
-    url: 'https://github.com/rohanpls/shellgreeter',
-  },
-  {
-    title: 'Adding Soon',
-    content: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit.',
-    image: imageFour,
-    url: 'https://github.com/rohanpls/shellgreeter',
+    url: 'https://github.com/rohanpls/rohanpls-portfolio',
   },
 ])
 </script>

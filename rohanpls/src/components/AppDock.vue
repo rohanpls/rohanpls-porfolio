@@ -20,7 +20,6 @@ const launchApp = (appName) => {
   emit('launch-app', appName)
 }
 </script>
-
 <style scoped>
 .dock-container {
   position: fixed;
@@ -88,22 +87,44 @@ const launchApp = (appName) => {
 
 .tooltip {
   position: absolute;
-  bottom: 120%;
+  bottom: 130%;
   left: 50%;
-  transform: translateX(-50%);
-  background-color: #1e1e1e;
-  color: white;
-  padding: 5px 12px;
-  border-radius: 5px;
-  white-space: nowrap;
+
+  transform: translateX(-50%) translateY(10px);
   opacity: 0;
+
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 500;
+  font-size: 0.9rem;
+
+  background: rgba(30, 30, 32, 0.75);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  white-space: nowrap;
   pointer-events: none;
   transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  transform-origin: bottom center;
 }
 
 .dock-item:hover .tooltip {
   opacity: 1;
-  transform: translateX(-50%) translateY(-5px);
+  transform: translateX(-50%) translateY(0);
+}
+
+.tooltip::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px;
+  height: 10px;
+  background: rgba(30, 30, 32, 0.75);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 </style>

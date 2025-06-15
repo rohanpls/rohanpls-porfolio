@@ -1,9 +1,8 @@
 <script setup>
-import { ref, provide, shallowRef, computed } from 'vue'
+import { ref, provide, shallowRef } from 'vue'
 import MainDisplay from './components/MainDisplay.vue'
 import AppWindow from './components/AppWindow.vue'
 import AppDock from './components/AppDock.vue'
-import TheTerminal from './components/TheTerminal.vue'
 import { dockIcons } from './components/dockIcons.js'
 import ProjectsApp from './components/ProjectsApp.vue'
 import SkillsApp from './components/SkillsApp.vue'
