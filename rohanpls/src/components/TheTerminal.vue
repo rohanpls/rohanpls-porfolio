@@ -14,7 +14,6 @@
         </div>
         <div class="new-tab-btn" @click="addTab" v-if="tabs.length < maxTabs">+</div>
       </div>
-
       <div class="buttons">
         <div class="btn close"></div>
         <div class="btn minimize"></div>
@@ -23,12 +22,32 @@
     </div>
 
     <div class="terminal-body" ref="terminalBody">
-      <template v-if="currentTab">
-        <div v-for="(line, index) in currentTab.history" :key="index" class="line">
-          <span v-if="line.type === 'command'" class="prompt">{{ prompt }}</span>
-          <span>{{ line.text }}</span>
-        </div>
-        <div class="input-line">
+      <div class="content-wrapper" v-if="currentTab">
+        <template v-for="(line, index) in currentTab.history" :key="index">
+          <div
+            v-if="line.image"
+            class="line image-line"
+            :class="{ 'animate-fade-up': !currentTab.hasAnimated }"
+            :style="{ animationDelay: index * 80 + 'ms' }"
+          >
+            <img :src="line.image" alt="Welcome Art" class="welcome-image" />
+          </div>
+          <div
+            v-else
+            class="line"
+            :class="{ 'animate-fade-up': !currentTab.hasAnimated }"
+            :style="{ animationDelay: index * 80 + 'ms' }"
+          >
+            <span v-if="line.type === 'command'" class="prompt">{{ prompt }}</span>
+            <span>{{ line.text }}</span>
+          </div>
+        </template>
+
+        <div
+          class="input-line"
+          :class="{ 'animate-fade-up': !currentTab.hasAnimated }"
+          :style="{ animationDelay: currentTab.history.length * 80 + 'ms' }"
+        >
           <span class="prompt">{{ prompt }}</span>
           <input
             ref="inputField"
@@ -39,26 +58,25 @@
             autofocus
           />
         </div>
-      </template>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch, nextTick, onMounted, onUnmounted, inject } from 'vue'
-const openApp = inject('openApp')
+import ricebowlImage from '@/assets/images/ricebowl.png'
 
+const openApp = inject('openApp')
 const tabs = ref([])
 const prompt = 'rohanpls@portfolio:~$'
 const inputField = ref(null)
 const terminalBody = ref(null)
-
 const isMobile = ref(false)
 
 const checkScreenSize = () => {
   isMobile.value = window.innerWidth <= 768
 }
-
 const maxTabs = computed(() => {
   return isMobile.value ? 2 : 3
 })
@@ -66,7 +84,7 @@ const maxTabs = computed(() => {
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
-  addTab()
+  if (tabs.value.length === 0) addTab()
 })
 
 onUnmounted(() => {
@@ -77,9 +95,21 @@ const currentTab = computed(() => tabs.value.find((tab) => tab.isActive))
 
 const createNewTab = () => ({
   id: Date.now(),
-  history: [{ type: 'output', text: "Welcome! Type 'help' to see commands." }],
+  history: [
+    { type: 'output', image: ricebowlImage },
+    { type: 'output', text: "Welcome! Type 'help' to see commands." },
+  ],
   input: '',
   isActive: false,
+  hasAnimated: false,
+})
+
+watch(currentTab, (newTab) => {
+  if (newTab && !newTab.hasAnimated) {
+    setTimeout(() => {
+      newTab.hasAnimated = true
+    }, 1000)
+  }
 })
 
 const addTab = () => {
@@ -91,18 +121,14 @@ const addTab = () => {
   newTab.isActive = true
   tabs.value.push(newTab)
 }
-
 const selectTab = (id) => {
   tabs.value.forEach((t) => (t.isActive = t.id === id))
 }
-
 const closeTab = (id) => {
   const index = tabs.value.findIndex((t) => t.id === id)
   if (index === -1) return
-
   const wasActive = tabs.value[index].isActive
   tabs.value.splice(index, 1)
-
   if (wasActive && tabs.value.length > 0) {
     const newActiveIndex = Math.max(0, index - 1)
     tabs.value[newActiveIndex].isActive = true
@@ -110,7 +136,6 @@ const closeTab = (id) => {
     addTab()
   }
 }
-
 const commands = {
   help: () => [
     "'whoami'",
@@ -141,14 +166,11 @@ const commands = {
     return []
   },
 }
-
 const handleCommand = () => {
   if (!currentTab.value) return
   const tab = currentTab.value
   const command = tab.input.trim().toLowerCase()
-
   tab.history.push({ type: 'command', text: command })
-
   if (command in commands) {
     const output = commands[command]()
     if (Array.isArray(output)) tab.history.push(...output.map((text) => ({ type: 'output', text })))
@@ -158,9 +180,7 @@ const handleCommand = () => {
   }
   tab.input = ''
 }
-
 const focusInput = () => inputField.value?.focus()
-
 watch(
   () => currentTab.value?.history,
   async () => {
@@ -172,6 +192,13 @@ watch(
 </script>
 
 <style scoped>
+.welcome-image {
+  max-width: 150px;
+  margin-bottom: 1em;
+}
+.image-line {
+  padding: 0.5em 0;
+}
 .terminal-window {
   width: 700px;
   max-width: 90vw;
@@ -187,24 +214,21 @@ watch(
   margin-top: 2rem;
   font-family: 'Fira Code', monospace;
 }
-
 .title-bar {
-  background-color: rgba(46, 46, 46, 0.5) d;
-  padding: 0 12px; /* Add some horizontal padding */
+  background-color: rgba(46, 46, 46, 0.5);
+  padding: 0 12px;
   border-top-left-radius: 10px;
   border-top-right-radius: 10px;
   display: flex;
-  align-items: center; /* Vertically center content */
-  justify-content: space-between; /* This pushes tabs left and buttons right */
+  align-items: center;
+  justify-content: space-between;
   position: relative;
-  height: 56px; /* Increased height for a more spacious feel */
+  height: 56px;
 }
-
 .buttons {
   display: flex;
   gap: 8px;
   margin-right: 8px;
-  /* No margin needed anymore */
 }
 .btn {
   width: 12px;
@@ -220,18 +244,16 @@ watch(
 .maximize {
   background-color: #27c93f;
 }
-
 .tabs-container {
   display: flex;
   flex-grow: 1;
-  align-items: flex-end; /* Align tabs to the bottom of the bar */
-  height: 100%; /* Make container full height of title bar */
+  align-items: flex-end;
+  height: 100%;
 }
-
 .tab-item {
   background-color: rgba(46, 46, 46, 0.5);
   color: #ccc;
-  padding: 10px 18px; /* Added more padding */
+  padding: 10px 18px;
   cursor: pointer;
   position: relative;
   display: flex;
@@ -240,17 +262,14 @@ watch(
   font-size: 0.8rem;
   border: 1px solid transparent;
   border-bottom: none;
-  /* The large border-radius you requested */
   border-top-left-radius: 0.6rem;
   border-top-right-radius: 0.6rem;
 }
-
 .tab-item.active {
   background-color: rgba(15, 15, 15, 0.5);
   color: white;
   border-color: rgba(255, 255, 255, 0.1);
 }
-
 .close-tab-btn {
   width: 20px;
   height: 20px;
@@ -264,10 +283,9 @@ watch(
 .close-tab-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
 .new-tab-btn {
-  width: 38px; /* Increased size to better match tab height */
-  height: 38px; /* Increased size to better match tab height */
+  width: 38px;
+  height: 38px;
   border-radius: 6px;
   background-color: rgba(46, 46, 46, 0.5);
   color: white;
@@ -275,17 +293,12 @@ watch(
   justify-content: center;
   align-items: center;
   font-size: 1.5rem;
-
   cursor: pointer;
   margin-left: 8px;
 }
 .new-tab-btn:hover {
   background-color: rgba(255, 255, 255, 0.1);
 }
-
-/* ... The rest of the styles are the same ... */
-
-/* --- Body and Input Styling (mostly the same) --- */
 .terminal-body {
   flex-grow: 1;
   padding: 10px;
@@ -318,41 +331,49 @@ input {
 input:focus {
   outline: none;
 }
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-fade-up {
+  opacity: 0;
+  animation: fadeUp 0.4s ease-out forwards;
+}
 @media (max-width: 768px) {
   .terminal-window {
-    /* Make terminal take up more of the screen on mobile */
     width: 95vw;
     height: 350px;
     margin-top: 1rem;
   }
-
   .title-bar {
-    height: 48px; /* Slightly smaller title bar */
+    height: 48px;
     padding: 0 8px;
   }
-
   .tab-item {
-    padding: 8px 10px; /* Smaller padding on tabs */
+    padding: 8px 10px;
     font-size: 0.75rem;
-    gap: 60px; /* Less gap between text and close button */
+    gap: 60px;
   }
-
   .close-tab-btn {
     width: 14px;
     height: 14px;
     font-size: 20px;
   }
-
   .new-tab-btn {
     width: 32px;
     height: 32px;
     font-size: 1.2rem;
   }
-
   .prompt,
   input,
   .line {
-    font-size: 0.85rem; /* Slightly smaller text in the terminal body */
+    font-size: 0.85rem;
   }
 }
 </style>
