@@ -137,15 +137,7 @@ const closeTab = (id) => {
   }
 }
 const commands = {
-  help: () => [
-    "'whoami'",
-    "'projects'",
-    "'skills'",
-    "'tictactoe'",
-    "'contact'",
-    "'date'",
-    "'clear'",
-  ],
+  help: () => ["'whoami'", "'projects'", "'skills'", "'tictactoe'", "'contact'", "'clear'"],
   whoami: () => ['Rohan, a passionate developer.'],
   projects: () => {
     openApp('projects')
@@ -160,7 +152,6 @@ const commands = {
     return 'Launching Tic Tac Toe...'
   },
   contact: () => ['Email: dev.rohanpls@gmail.com', 'LinkedIn: linkedin.com/in/rohanpls'],
-  date: () => new Date().toLocaleString(),
   clear: () => {
     if (currentTab.value) currentTab.value.history = []
     return []
